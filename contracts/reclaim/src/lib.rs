@@ -46,19 +46,27 @@ pub struct Epoch {
     pub witnesses: Vec<Witness>,
 }
 
-fn generate_random_seed(bytes: Vec<u8>, offset: usize) -> u32 {
-    let hash_slice = &bytes.slice(offset as u32..(offset + 4) as u32);
-    let mut seed = 0u32;
+// fn generate_random_seed(bytes: Vec<u8>, offset: usize) -> u32 {
+//     let hash_slice = &bytes.slice(offset as u32..(offset + 4) as u32);
+//     let mut seed = 0u32;
 
-    // for i in 0..hash_slice.len(){
-    //     let byte = hash_slice.x;
-    // }
+//     for i in 0..hash_slice.len(){
+//         let byte = hash_slice.x;
+//     }
 
-    // for (i, &byte) in hash_slice.iter().enumerate() {
-    //     seed |= u32::from(byte) << (i * 8);
-    // }
+//     for (i, &byte) in hash_slice.iter().enumerate() {
+//         seed |= u32::from(byte) << (i * 8);
+//     }
 
-    seed
+//     seed
+// }
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SignedClaim {
+    pub message_digest: BytesN<32>,
+    pub signatures: Vec<BytesN<64>>,
+    pub recovery_id: u32,
 }
 
 #[contracterror]
@@ -141,9 +149,31 @@ impl ReclaimContract {
         Ok(())
     }
 
-    // pub fn verify_proof(env: Env, signed_claim: SignedClaim) -> Result<(), ReclaimError> {
-    //     Ok(())
-    // }
+    pub fn verify_proof(env: Env, signed_claim: SignedClaim) -> Result<(), ReclaimError> {
+        let epoch: Epoch = env.storage().persistent().get(&EPOCH).unwrap();
+        let witness = epoch.witnesses.first().unwrap().address;
+
+        for i in 0..signed_claim.signatures.len() {
+            let signature = signed_claim.signatures.get_unchecked(i);
+            let full_address = env.crypto().secp256k1_recover(
+                &signed_claim.message_digest,
+                &signature,
+                signed_claim.recovery_id,
+            );
+            let hashed_full_address = env.crypto().keccak256(&full_address.into());
+
+            let mut pub_key = [0_u8; 20];
+            for i in 12..32 {
+                let byte = hashed_full_address.get(i).unwrap().into();
+                pub_key[(i - 12) as usize] = byte;
+            }
+
+            let bytes: BytesN<20> = BytesN::from_array(&env, &pub_key);
+
+            assert_eq!(witness, bytes);
+        }
+        Ok(())
+    }
 }
 
 mod test;
