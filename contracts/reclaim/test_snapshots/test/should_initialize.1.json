@@ -132,10 +132,7 @@
                         "symbol": "minimum_witness"
                       },
                       "val": {
-                        "u128": {
-                          "hi": 0,
-                          "lo": 1
-                        }
+                        "u32": 1
                       }
                     },
                     {

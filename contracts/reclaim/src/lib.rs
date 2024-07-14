@@ -42,7 +42,7 @@ pub struct Epoch {
     pub id: u128,
     pub timestamp_start: u64,
     pub timestamp_end: u64,
-    pub minimum_witness: u128,
+    pub minimum_witness: u32,
     pub witnesses: Vec<Witness>,
 }
 
@@ -113,7 +113,7 @@ impl ReclaimContract {
             id: 0_u128,
             timestamp_start: now,
             timestamp_end: now + 10000_u64,
-            minimum_witness: 1_u128,
+            minimum_witness: 1_u32,
             witnesses: vec![&env],
         };
 
@@ -124,7 +124,7 @@ impl ReclaimContract {
     pub fn add_epoch(
         env: Env,
         witnesses: Vec<Witness>,
-        minimum_witness: u128,
+        minimum_witness: u32,
     ) -> Result<(), ReclaimError> {
         let mut config: Config = env.storage().persistent().get(&CONFIG).unwrap();
         let admin = config.owner.clone();
@@ -151,7 +151,13 @@ impl ReclaimContract {
 
     pub fn verify_proof(env: Env, signed_claim: SignedClaim) -> Result<(), ReclaimError> {
         let epoch: Epoch = env.storage().persistent().get(&EPOCH).unwrap();
-        let witness = epoch.witnesses.first().unwrap().address;
+
+        let wits = epoch.witnesses.slice(0..epoch.minimum_witness);
+        let mut addresses = vec![&env];
+
+        for wit in wits {
+            addresses.push_back(wit.address);
+        }
 
         for i in 0..signed_claim.signatures.len() {
             let signature = signed_claim.signatures.get_unchecked(i);
@@ -160,7 +166,20 @@ impl ReclaimContract {
                 &signature,
                 signed_claim.recovery_id,
             );
-            let hashed_full_address = env.crypto().keccak256(&full_address.into());
+
+            let address_slice = &mut [0; 65];
+            full_address.copy_into_slice(address_slice);
+            let address_slice_unprefixed = &address_slice[1..];
+
+            let mut slice_bytes = [0_u8; 64];
+
+            for i in 0..64 {
+                slice_bytes[i] = *address_slice_unprefixed.get(i).unwrap();
+            }
+
+            let by: BytesN<64> = BytesN::from_array(&env, &slice_bytes);
+
+            let hashed_full_address = env.crypto().keccak256(&by.into());
 
             let mut pub_key = [0_u8; 20];
             for i in 12..32 {
@@ -168,9 +187,11 @@ impl ReclaimContract {
                 pub_key[(i - 12) as usize] = byte;
             }
 
-            let bytes: BytesN<20> = BytesN::from_array(&env, &pub_key);
+            let address: BytesN<20> = BytesN::from_array(&env, &pub_key);
 
-            assert_eq!(witness, bytes);
+            if !addresses.contains(&address) {
+                return Err(ReclaimError::SignatureMismatch);
+            }
         }
         Ok(())
     }

@@ -57,10 +57,7 @@
                   ]
                 },
                 {
-                  "u128": {
-                    "hi": 0,
-                    "lo": 1
-                  }
+                  "u32": 1
                 }
               ]
             }
@@ -179,10 +176,7 @@
                         "symbol": "minimum_witness"
                       },
                       "val": {
-                        "u128": {
-                          "hi": 0,
-                          "lo": 1
-                        }
+                        "u32": 1
                       }
                     },
                     {
@@ -453,10 +447,7 @@
                   ]
                 },
                 {
-                  "u128": {
-                    "hi": 0,
-                    "lo": 1
-                  }
+                  "u32": 1
                 }
               ]
             }
@@ -550,166 +541,13 @@
           "v0": {
             "topics": [
               {
-                "symbol": "log"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "string": "caught panic 'assertion `left == right` failed\\n  left: BytesN<20>(36, 72, 151, 87, 35, 104, 234, 223, 101, 191, 188, 90, 236, 152, 216, 229, 68, 58, 144, 114)\\n right: BytesN<20>(230, 233, 153, 23, 32, 40, 32, 188, 96, 235, 193, 214, 24, 28, 237, 34, 151, 236, 218, 187)' from contract function 'Symbol(obj#71)'"
-                },
-                {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "message_digest"
-                      },
-                      "val": {
-                        "bytes": "c32e57b71247c1aab4b93bb0a2bb373186acc2d5c9bd8dfcd046e1d0553fd421"
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "recovery_id"
-                      },
-                      "val": {
-                        "u32": 1
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "signatures"
-                      },
-                      "val": {
-                        "vec": [
-                          {
-                            "bytes": "2888485f650f8ed02d18e32dd9a1512ca05feb83fc2cbf2df72fd8aa4246c5ee541fa53875c70eb64d3de9143446229a250c7a762202b7cc289ed31b74b31c81"
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": true
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "error"
+                "symbol": "fn_return"
               },
               {
-                "error": {
-                  "wasm_vm": "invalid_action"
-                }
+                "symbol": "verify_proof"
               }
             ],
-            "data": {
-              "string": "caught error from function"
-            }
-          }
-        }
-      },
-      "failed_call": true
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": null,
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "error"
-              },
-              {
-                "error": {
-                  "wasm_vm": "invalid_action"
-                }
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "string": "contract call failed"
-                },
-                {
-                  "symbol": "verify_proof"
-                },
-                {
-                  "vec": [
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "message_digest"
-                          },
-                          "val": {
-                            "bytes": "c32e57b71247c1aab4b93bb0a2bb373186acc2d5c9bd8dfcd046e1d0553fd421"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "recovery_id"
-                          },
-                          "val": {
-                            "u32": 1
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "signatures"
-                          },
-                          "val": {
-                            "vec": [
-                              {
-                                "bytes": "2888485f650f8ed02d18e32dd9a1512ca05feb83fc2cbf2df72fd8aa4246c5ee541fa53875c70eb64d3de9143446229a250c7a762202b7cc289ed31b74b31c81"
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": null,
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "error"
-              },
-              {
-                "error": {
-                  "wasm_vm": "invalid_action"
-                }
-              }
-            ],
-            "data": {
-              "string": "escalating error to panic"
-            }
+            "data": "void"
           }
         }
       },

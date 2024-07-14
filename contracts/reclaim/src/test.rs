@@ -40,7 +40,7 @@ fn should_add_epoch() {
     };
     witnesses.push_back(witness);
 
-    assert_eq!(client.add_epoch(&witnesses, &1_u128), ());
+    assert_eq!(client.add_epoch(&witnesses, &1_u32), ());
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn should_verify_proofs() {
     };
     witnesses.push_back(witness);
 
-    assert_eq!(client.add_epoch(&witnesses, &1_u128), ());
+    assert_eq!(client.add_epoch(&witnesses, &1_u32), ());
 
     let message_digest_array: [u8; 32] = [
         195, 46, 87, 183, 18, 71, 193, 170, 180, 185, 59, 176, 162, 187, 55, 49, 134, 172, 194,
