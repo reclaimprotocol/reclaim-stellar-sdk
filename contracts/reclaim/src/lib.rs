@@ -109,12 +109,29 @@ impl ReclaimContract {
         env.storage().persistent().set(&CONFIG, &config);
 
         let now = env.ledger().timestamp();
+
+        let default_witness = [
+            36, 72, 151, 87, 35, 104, 234, 223, 101, 191, 188, 90, 236, 152, 216, 229, 68, 58, 144,
+            114,
+        ];
+
+        let items = &default_witness[0..20]
+            .try_into()
+            .expect("slice with incorrect length");
+
+        let mut witnesses = vec![&env];
+        let witness = Witness {
+            address: BytesN::<20>::from_array(&env, items),
+            host: String::from_str(&env, "http"),
+        };
+        witnesses.push_back(witness);
+
         let epoch = Epoch {
             id: 0_u128,
             timestamp_start: now,
             timestamp_end: now + 10000_u64,
             minimum_witness: 1_u32,
-            witnesses: vec![&env],
+            witnesses: witnesses,
         };
 
         env.storage().persistent().set(&EPOCH, &epoch);
