@@ -76,7 +76,7 @@ fn should_verify_proofs() {
     ];
 
     let message_digest: BytesN<32> = BytesN::from_array(&env, &message_digest_array);
-    let mut signatures: Vec<BytesN<64>> = Vec::new(&env);
+    // let mut signatures: Vec<BytesN<64>> = Vec::new(&env);
 
     let signature_slice = hex::decode("2888485f650f8ed02d18e32dd9a1512ca05feb83fc2cbf2df72fd8aa4246c5ee541fa53875c70eb64d3de9143446229a250c7a762202b7cc289ed31b74b31c81").unwrap();
     assert_eq!(signature_slice.len(), 64);
@@ -89,13 +89,13 @@ fn should_verify_proofs() {
     }
     let signature: BytesN<64> = BytesN::from_array(&env, &signature_array);
 
-    signatures.push_back(signature);
+    // signatures.push_back(signature);
 
-    let signed_claim = SignedClaim {
-        message_digest,
-        signatures,
-        recovery_id: 1,
-    };
+    // let signed_claim = SignedClaim {
+    //     message_digest,
+    //     signatures,
+    //     recovery_id: 1,
+    // };
 
-    assert_eq!(client.verify_proof(&signed_claim), ());
+    assert_eq!(client.verify_proof(&message_digest, &signature, &1_u32), ());
 }

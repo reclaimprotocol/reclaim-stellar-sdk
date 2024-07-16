@@ -64,8 +64,8 @@ pub struct Epoch {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SignedClaim {
-    pub message_digest: BytesN<32>,
-    pub signatures: Vec<BytesN<64>>,
+    pub message_digest: String,
+    pub signatures: String,
     pub recovery_id: u32,
 }
 
@@ -166,7 +166,12 @@ impl ReclaimContract {
         Ok(())
     }
 
-    pub fn verify_proof(env: Env, signed_claim: SignedClaim) -> Result<(), ReclaimError> {
+    pub fn verify_proof(
+        env: Env,
+        message_digest: BytesN<32>,
+        signature: BytesN<64>,
+        recovery_id: u32,
+    ) -> Result<(), ReclaimError> {
         let epoch: Epoch = env.storage().persistent().get(&EPOCH).unwrap();
 
         let wits = epoch.witnesses.slice(0..epoch.minimum_witness);
@@ -176,40 +181,36 @@ impl ReclaimContract {
             addresses.push_back(wit.address);
         }
 
-        for i in 0..signed_claim.signatures.len() {
-            let signature = signed_claim.signatures.get_unchecked(i);
-            let full_address = env.crypto().secp256k1_recover(
-                &signed_claim.message_digest,
-                &signature,
-                signed_claim.recovery_id,
-            );
+        let full_address = env
+            .crypto()
+            .secp256k1_recover(&message_digest, &signature, recovery_id);
 
-            let address_slice = &mut [0; 65];
-            full_address.copy_into_slice(address_slice);
-            let address_slice_unprefixed = &address_slice[1..];
+        let address_slice = &mut [0; 65];
+        full_address.copy_into_slice(address_slice);
+        let address_slice_unprefixed = &address_slice[1..];
 
-            let mut slice_bytes = [0_u8; 64];
+        let mut slice_bytes = [0_u8; 64];
 
-            for i in 0..64 {
-                slice_bytes[i] = *address_slice_unprefixed.get(i).unwrap();
-            }
-
-            let by: BytesN<64> = BytesN::from_array(&env, &slice_bytes);
-
-            let hashed_full_address = env.crypto().keccak256(&by.into());
-
-            let mut pub_key = [0_u8; 20];
-            for i in 12..32 {
-                let byte = hashed_full_address.get(i).unwrap().into();
-                pub_key[(i - 12) as usize] = byte;
-            }
-
-            let address: BytesN<20> = BytesN::from_array(&env, &pub_key);
-
-            if !addresses.contains(&address) {
-                return Err(ReclaimError::SignatureMismatch);
-            }
+        for i in 0..64 {
+            slice_bytes[i] = *address_slice_unprefixed.get(i).unwrap();
         }
+
+        let by: BytesN<64> = BytesN::from_array(&env, &slice_bytes);
+
+        let hashed_full_address = env.crypto().keccak256(&by.into());
+
+        let mut pub_key = [0_u8; 20];
+        for i in 12..32 {
+            let byte = hashed_full_address.get(i).unwrap().into();
+            pub_key[(i - 12) as usize] = byte;
+        }
+
+        let address: BytesN<20> = BytesN::from_array(&env, &pub_key);
+
+        if !addresses.contains(&address) {
+            return Err(ReclaimError::SignatureMismatch);
+        }
+
         Ok(())
     }
 }
