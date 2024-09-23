@@ -1,4 +1,8 @@
-# Reclaim - Stellar SDK
+<div>
+    <div>
+        <img src="https://raw.githubusercontent.com/reclaimprotocol/.github/main/assets/banners/Stellar-SDK.png"  />
+    </div>
+</div>
 
 ## Contributing to Our Project
 
